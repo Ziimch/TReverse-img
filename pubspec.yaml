@@ -1,0 +1,46 @@
+name: lens_finder
+description: Reverse image search powered by Google Lens (SerpApi).
+publish_to: "none"
+version: 2.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  image_picker: ^1.1.2          # Gallery + Camera
+  image_cropper: ^9.0.0         # Crop to the object before searching
+  http: ^1.2.2                  # ImgBB upload + SerpApi calls
+  url_launcher: ^6.3.1          # Open links in the default browser
+  webview_flutter: ^4.10.0      # In-app result viewer
+  shared_preferences: ^2.3.3    # Keys, theme, history index
+  path_provider: ^2.1.5         # Local copies of searched images
+  package_info_plus: ^8.1.0     # Version shown in Settings
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/icon.png
+  adaptive_icon_background: "#4F6BED"
+  adaptive_icon_foreground: assets/icon_fg.png
+  min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#4F6BED"
+  image: assets/splash.png
+  android_12:
+    color: "#4F6BED"
+    image: assets/splash.png
