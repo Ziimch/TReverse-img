@@ -2,9 +2,16 @@ name: Build & Release APK
 
 on:
   push:
+    branches: [master, main]   # every commit to the default branch builds a release
+    paths-ignore:
+      - "**.md"
     tags:
-      - "v*"            # e.g. git tag v1.0.0 && git push --tags
-  workflow_dispatch:     # or run manually from the Actions tab
+      - "v*"                   # a tag like v2.1.0 sets the app's version name
+  workflow_dispatch:           # or run manually from the Actions tab
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write        # required to create the GitHub Release
@@ -114,3 +121,4 @@ jobs:
           name: Lens Finder ${{ steps.tag.outputs.name }}
           files: LensFinder-${{ steps.tag.outputs.name }}.apk
           generate_release_notes: true
+:
