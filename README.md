@@ -4,7 +4,7 @@ Reverse image search app (Flutter, Android). Pick or shoot a photo, optionally
 crop it, and get Similar / Exact / Product matches from Google Lens via SerpApi.
 
 ## Features
-- Gallery + camera, crop-to-object, optional text refinement
+- Gallery + camera, crop-to-object (pure Dart), optional text refinement
 - Similar / Exact / Products tabs, "best guess" card, locale-aware results
 - Search history stored on-device (reopening costs no API credits)
 - In-app browser, open in default browser, copy link

@@ -10,13 +10,12 @@ dependencies:
   flutter:
     sdk: flutter
   image_picker: ^1.1.2          # Gallery + Camera
-  image_cropper: ^9.0.0         # Crop to the object before searching
+  crop_your_image: ^2.0.0       # Pure-Dart cropper (no native/Gradle deps)
   http: ^1.2.2                  # ImgBB upload + SerpApi calls
   url_launcher: ^6.3.1          # Open links in the default browser
   webview_flutter: ^4.10.0      # In-app result viewer
   shared_preferences: ^2.3.3    # Keys, theme, history index
   path_provider: ^2.1.5         # Local copies of searched images
-  package_info_plus: ^8.1.0     # Version shown in Settings
 
 dev_dependencies:
   flutter_test:

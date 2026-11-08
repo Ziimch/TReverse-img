@@ -48,9 +48,6 @@ jobs:
           if ! grep -q 'android:scheme="https"' "$M"; then
             sed -i 's|<queries>|<queries>\n        <intent><action android:name="android.intent.action.VIEW"/><data android:scheme="https"/></intent>|' "$M"
           fi
-          if ! grep -q "UCropActivity" "$M"; then
-            sed -i 's|</application>|    <activity android:name="com.yalantis.ucrop.UCropActivity" android:screenOrientation="portrait" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>\n    </application>|' "$M"
-          fi
           sed -i 's|android:label="[^"]*"|android:label="Lens Finder"|' "$M"
 
       - name: Get packages

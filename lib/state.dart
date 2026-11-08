@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -206,29 +205,11 @@ class LensController extends ChangeNotifier {
     await search();
   }
 
-  /// Crop to the object of interest — the biggest single accuracy gain.
-  Future<void> crop() async {
-    if (image == null || busy) return;
-    try {
-      final cropped = await ImageCropper().cropImage(
-        sourcePath: image!.path,
-        compressQuality: 92,
-        maxWidth: 1600,
-        maxHeight: 1600,
-        uiSettings: [
-          AndroidUiSettings(
-            toolbarTitle: 'Crop to the object',
-            lockAspectRatio: false,
-            initAspectRatio: CropAspectRatioPreset.original,
-          ),
-        ],
-      );
-      if (cropped == null) return;
-      _setImage(File(cropped.path));
-      await search();
-    } on PlatformException catch (e) {
-      _fail('Could not crop: ${e.message ?? e.code}');
-    }
+  /// Called with the file returned by the crop screen.
+  Future<void> useCropped(File f) async {
+    if (busy) return;
+    _setImage(f);
+    await search();
   }
 
   /// Reopen a saved search without spending any API credits.

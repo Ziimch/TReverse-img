@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models.dart';
 import '../state.dart';
 import '../widgets.dart';
+import 'crop_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final VoidCallback onOpenSettings;
@@ -31,6 +34,13 @@ class _SearchScreenState extends State<SearchScreen> {
   void _syncQuery() {
     final c = _c!;
     if (!_focus.hasFocus && _q.text != c.query) _q.text = c.query;
+  }
+
+  Future<void> _crop(BuildContext context, LensController c) async {
+    final file = await Navigator.of(context).push<File>(
+      MaterialPageRoute(builder: (_) => CropScreen(image: c.image!)),
+    );
+    if (file != null) await c.useCropped(file);
   }
 
   @override
@@ -167,7 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
               right: 10,
               bottom: 10,
               child: FilledButton.tonalIcon(
-                onPressed: c.busy ? null : c.crop,
+                onPressed: c.busy ? null : () => _crop(context, c),
                 icon: const Icon(Icons.crop_rounded, size: 18),
                 label: const Text('Crop'),
               ),

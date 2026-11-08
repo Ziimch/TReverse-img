@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import '../state.dart';
 import '../widgets.dart';
@@ -15,15 +14,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   TextEditingController? _serp;
   TextEditingController? _imgbb;
   bool _show = false;
-  String _version = '';
-
-  @override
-  void initState() {
-    super.initState();
-    PackageInfo.fromPlatform().then((p) {
-      if (mounted) setState(() => _version = '${p.version} (${p.buildNumber})');
-    });
-  }
 
   @override
   void didChangeDependencies() {
@@ -121,7 +111,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.info_outline_rounded),
               title: const Text('Lens Finder'),
-              subtitle: Text(_version.isEmpty ? 'Version —' : 'Version $_version'),
+              subtitle: const Text('Reverse image search • Google Lens via SerpApi'),
             ),
           ],
         ),
