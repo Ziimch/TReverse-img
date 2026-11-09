@@ -11,10 +11,12 @@ crop it, and get Similar / Exact / Product matches from Google Lens via SerpApi.
 - Light / Dark / System theme, app icon, splash screen
 - Versioned releases that install over previous ones (stable signing key)
 
-## 1. API keys (free)
-- **SerpApi**: https://serpapi.com/manage-api-key (~100 searches/month free)
-- **ImgBB**: https://api.imgbb.com/ (SerpApi needs an image *URL*; uploads auto-delete after 10 min)
-Enter both in the app: **Settings → API keys**.
+## 1. Keys are OPTIONAL
+Works with no keys: the app uploads your photo to Litterbox (temporary, deleted after
+1 hour) and opens **Google Lens, Yandex, TinEye or Bing** in the in-app browser.
+Optional extras (Settings):
+- **SerpApi key** -> in-app result lists, tabs, best guess, history.
+- **ImgBB key** -> more reliable image hosting (auto-deletes after 10 min).
 
 ## 2. Build with GitHub Actions
 Push the repo contents, then either:

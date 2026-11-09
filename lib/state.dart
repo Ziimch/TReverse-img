@@ -22,7 +22,8 @@ class SettingsController extends ChangeNotifier {
   String imgbbKey = '';
   ThemeMode themeMode = ThemeMode.system;
 
-  bool get hasKeys => serpKey.isNotEmpty && imgbbKey.isNotEmpty;
+  /// SerpApi is optional: without it the app uses the free web engines.
+  bool get hasSerp => serpKey.isNotEmpty;
 
   Future<void> load() async {
     final p = await SharedPreferences.getInstance();
@@ -157,13 +158,16 @@ class LensController extends ChangeNotifier {
     _cache.clear();
     type = SearchType.all;
     error = null;
+    phase = Phase.idle;
   }
 
   /// Runs (or resumes) upload + search for the current image/tab/query.
   Future<void> search() async {
     if (image == null || busy) return;
-    if (!settings.hasKeys) {
-      _fail('Add your API keys in Settings to start searching.');
+    if (!settings.hasSerp) {
+      // Free mode: nothing to run automatically; the user picks a web engine.
+      phase = Phase.idle;
+      notifyListeners();
       return;
     }
     error = null;
@@ -190,6 +194,39 @@ class LensController extends ChangeNotifier {
       _fail('The request timed out. Try again.');
     } catch (e) {
       _fail('Unexpected error: $e');
+    }
+  }
+
+  /// Uploads the image (if needed) and returns a public URL for the free
+  /// web engines (Google Lens, Yandex, TinEye, Bing). Null on failure.
+  Future<String?> ensurePublicUrl() async {
+    if (image == null || busy) return imageUrl;
+    if (imageUrl != null) return imageUrl;
+    try {
+      error = null;
+      phase = Phase.uploading;
+      notifyListeners();
+      imageUrl = await _host.upload(image!, settings.imgbbKey);
+      phase = _cache.isEmpty ? Phase.idle : Phase.done;
+      notifyListeners();
+      return imageUrl;
+    } on ApiException catch (e) {
+      _fail(e.message);
+    } on SocketException {
+      _fail('No internet connection.');
+    } on TimeoutException {
+      _fail('The request timed out. Try again.');
+    } catch (e) {
+      _fail('Unexpected error: $e');
+    }
+    return null;
+  }
+
+  Future<void> retry() async {
+    if (settings.hasSerp) {
+      await search();
+    } else {
+      await ensurePublicUrl();
     }
   }
 

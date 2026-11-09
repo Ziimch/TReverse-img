@@ -169,3 +169,22 @@ String timeAgo(int millis) {
   final t = DateTime.fromMillisecondsSinceEpoch(millis);
   return '${t.day}/${t.month}/${t.year}';
 }
+
+/// Free web engines that accept an image URL — no API key required.
+class WebEngine {
+  final String name;
+  final IconData icon;
+  final String Function(String imageUrl) urlFor;
+  const WebEngine(this.name, this.icon, this.urlFor);
+}
+
+final List<WebEngine> webEngines = [
+  WebEngine('Google Lens', Icons.center_focus_strong_outlined,
+      (u) => 'https://lens.google.com/uploadbyurl?url=${Uri.encodeComponent(u)}'),
+  WebEngine('Yandex', Icons.travel_explore_rounded,
+      (u) => 'https://yandex.com/images/search?rpt=imageview&url=${Uri.encodeComponent(u)}'),
+  WebEngine('TinEye', Icons.fingerprint_rounded,
+      (u) => 'https://tineye.com/search?url=${Uri.encodeComponent(u)}'),
+  WebEngine('Bing', Icons.image_search_rounded,
+      (u) => 'https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIVSP&sbisrc=UrlPasteBox&q=imgurl:${Uri.encodeComponent(u)}'),
+];

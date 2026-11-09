@@ -106,24 +106,26 @@ class _SearchScreenState extends State<SearchScreen> {
               style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 28),
-            if (!s.hasKeys) ...[
+            if (!s.hasSerp) ...[
               Card(
                 color: cs.tertiaryContainer,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      Text('One-time setup',
+                      Text('No API key needed',
                           style: tt.titleSmall
                               ?.copyWith(color: cs.onTertiaryContainer)),
                       const SizedBox(height: 4),
-                      Text('Add your free SerpApi and ImgBB keys to start searching.',
+                      Text(
+                          'Pick a photo, then open it in Google Lens, Yandex, TinEye or Bing. '
+                          'Optionally add a SerpApi key for in-app result lists.',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: cs.onTertiaryContainer)),
-                      const SizedBox(height: 12),
-                      FilledButton.tonal(
+                      const SizedBox(height: 8),
+                      TextButton(
                         onPressed: widget.onOpenSettings,
-                        child: const Text('Add API keys'),
+                        child: const Text('Add optional keys'),
                       ),
                     ],
                   ),
@@ -161,6 +163,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final res = c.current;
+    final hasSerp = AppScope.of(context).settings.hasSerp;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
@@ -184,6 +187,9 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 12),
+        _freePanel(context, c),
+        if (hasSerp) ...[
         const SizedBox(height: 12),
         TextField(
           controller: _q,
@@ -217,6 +223,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Text('Text refinement is ignored for exact matches.',
                 style: tt.bodySmall),
           ),
+        ],
         const SizedBox(height: 16),
         if (c.busy)
           StatusBlock(
@@ -224,6 +231,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   ? 'Uploading image…'
                   : 'Searching the web…'),
         if (c.phase == Phase.error) _errorCard(c, cs),
+        if (hasSerp && c.phase == Phase.idle && c.current == null)
+          FilledButton.icon(
+            onPressed: c.search,
+            icon: const Icon(Icons.search_rounded),
+            label: const Text('Search with SerpApi'),
+          ),
         if (c.phase == Phase.done && res != null) ...[
           if (res.bestGuess != null) _bestGuess(context, res, cs),
           Row(
@@ -258,6 +271,46 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  Widget _freePanel(BuildContext context, LensController c) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Card(
+      color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Search on the web', style: tt.titleSmall),
+            const SizedBox(height: 2),
+            Text('Free, no API key. Opens the engine with your image.',
+                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final e in webEngines)
+                  FilledButton.tonalIcon(
+                    onPressed: c.busy
+                        ? null
+                        : () async {
+                            final url = await c.ensurePublicUrl();
+                            if (url != null && context.mounted) {
+                              openInApp(context, e.urlFor(url), e.name);
+                            }
+                          },
+                    icon: Icon(e.icon, size: 18),
+                    label: Text(e.name),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _bestGuess(BuildContext context, LensResult res, ColorScheme cs) {
     return Card(
       color: cs.primaryContainer,
@@ -281,7 +334,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _errorCard(LensController c, ColorScheme cs) {
-    final needsKeys = !AppScope.of(context).settings.hasKeys;
     return Card(
       color: cs.errorContainer,
       child: Padding(
@@ -295,8 +347,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   style: TextStyle(color: cs.onErrorContainer)),
             ),
             TextButton(
-              onPressed: needsKeys ? widget.onOpenSettings : c.search,
-              child: Text(needsKeys ? 'Settings' : 'Retry'),
+              onPressed: c.retry,
+              child: const Text('Retry'),
             ),
           ],
         ),

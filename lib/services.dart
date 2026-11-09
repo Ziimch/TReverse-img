@@ -27,10 +27,33 @@ Map<String, dynamic> _decode(String s) {
   }
 }
 
-/// SerpApi's Google Lens engine only accepts an image *URL*, so we first push
-/// the picture to ImgBB. `expiration=600` auto-deletes it after 10 minutes.
+/// Search engines need a public image *URL*, so we first host the picture:
+///  - ImgBB when the user added a key (auto-deleted after 10 minutes), else
+///  - Litterbox (no account/key needed, auto-deleted after 1 hour).
 class ImageHostService {
-  Future<String> upload(File file, String apiKey) async {
+  Future<String> upload(File file, String imgbbKey) async {
+    if (imgbbKey.trim().isEmpty) return _litterbox(file);
+    return _imgbb(file, imgbbKey.trim());
+  }
+
+  Future<String> _litterbox(File file) async {
+    final req = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://litterbox.catbox.moe/resources/internals/api.php'),
+    )
+      ..fields['reqtype'] = 'fileupload'
+      ..fields['time'] = '1h'
+      ..files.add(await http.MultipartFile.fromPath('fileToUpload', file.path));
+    final streamed = await req.send().timeout(const Duration(seconds: 60));
+    final body = (await streamed.stream.bytesToString()).trim();
+    if (streamed.statusCode != 200 || !body.startsWith('http')) {
+      throw ApiException('Free image host failed (HTTP ${streamed.statusCode}). '
+          'Try again, or add an ImgBB key in Settings.');
+    }
+    return body;
+  }
+
+  Future<String> _imgbb(File file, String apiKey) async {
     final bytes = await file.readAsBytes();
     final res = await http
         .post(

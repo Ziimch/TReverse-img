@@ -33,7 +33,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _save(SettingsController s) async {
     FocusScope.of(context).unfocus();
     await s.saveKeys(_serp!.text, _imgbb!.text);
-    if (mounted) snack(context, s.hasKeys ? 'Keys saved' : 'Saved — both keys are needed');
+    if (mounted) snack(context, 'Saved');
   }
 
   @override
@@ -50,14 +50,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         body: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            Text('API keys', style: tt.titleMedium),
+            Text('API keys (optional)', style: tt.titleMedium),
             const SizedBox(height: 4),
-            Text('Stored only on this device. Both services have free tiers.',
+            Text('Not required. Without keys the app opens Google Lens, Yandex, TinEye and Bing with your image. '
+                'A SerpApi key adds result lists inside the app. Keys are stored only on this device.',
                 style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             const SizedBox(height: 12),
-            _keyField(_serp!, 'SerpApi key'),
+            _keyField(_serp!, 'SerpApi key (optional)'),
             const SizedBox(height: 12),
-            _keyField(_imgbb!, 'ImgBB key'),
+            _keyField(_imgbb!, 'ImgBB key (optional)'),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -101,9 +102,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text('Privacy', style: tt.titleMedium),
             const SizedBox(height: 8),
             Text(
-              'To search, your image is uploaded to ImgBB as a temporary public link '
-              '(auto-deleted after 10 minutes) and sent to SerpApi / Google Lens. '
-              'History is kept only on this device.',
+              'To search, your image is uploaded as a temporary public link — to Litterbox '
+              '(deleted after 1 hour) or, if you added a key, ImgBB (deleted after 10 minutes) — '
+              'and opened in the search engine you choose. History is kept only on this device.',
               style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
             ),
             const Divider(height: 32),
